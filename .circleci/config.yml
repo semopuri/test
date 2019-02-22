@@ -17,6 +17,18 @@ jobs:
           command: |
             docker run -d -p 8080:8080 --name built-image test-docker
       - run:
-          name: Test
+          name: Create ECR repository
           command: |
-            aws s3 ls
+            aws ecr create-repository --repository-name hello-repository
+      - run:
+          name: Docker Tag Images
+          command: |
+            docker tag test-docker ${aws_account_id}.dkr.ecr.us-east-1.amazonaws.com/hello-repository
+      - run:
+          name: AWS ECR Login
+          command: |
+            eval $(aws ecr get-login --no-include-email)
+      - run:
+          name: Docker push
+          command: |
+            docker push ${aws_account_id}.dkr.ecr.us-east-1.amazonaws.com/hello-repository
